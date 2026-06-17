@@ -104,10 +104,6 @@ class FakeSettingsRepository extends SettingsRepository {
   Future<AppSettings> getSettings() async {
     final now = DateTime(2026, 6, 16);
 
-    return AppSettings(
-      halfDayValueCents: 0,
-      createdAt: now,
-      updatedAt: now,
-    );
+    return AppSettings(halfDayValueCents: 0, createdAt: now, updatedAt: now);
   }
 }
