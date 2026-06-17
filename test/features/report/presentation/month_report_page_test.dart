@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ponto_eletronico/data/repositories/settings_repository.dart';
 import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
 import 'package:ponto_eletronico/features/report/presentation/month_report_page.dart';
+import 'package:ponto_eletronico/models/app_settings.dart';
 import 'package:ponto_eletronico/models/work_day.dart';
 
 void main() {
@@ -15,6 +17,7 @@ void main() {
               _workDay('2026-06-17', before: true, after: true),
             ],
           ),
+          settingsRepository: FakeSettingsRepository(valueCents: 8000),
         ),
       ),
     );
@@ -28,6 +31,7 @@ void main() {
     expect(find.text('2026-06-17'), findsOneWidget);
     expect(find.text('Dias trabalhados: 2'), findsOneWidget);
     expect(find.text('Periodos: 3'), findsOneWidget);
+    expect(find.text('Total: R\$ 240,00'), findsOneWidget);
   });
 }
 
@@ -39,6 +43,24 @@ class FakeWorkDayRepository extends WorkDayRepository {
 
   @override
   Future<List<WorkDay>> findMarkedByMonth(String month) async => monthResults;
+}
+
+class FakeSettingsRepository extends SettingsRepository {
+  FakeSettingsRepository({required this.valueCents})
+    : super(databaseProvider: () => throw StateError('Database not used.'));
+
+  final int valueCents;
+
+  @override
+  Future<AppSettings> getSettings() async {
+    final now = DateTime(2026, 6, 16);
+
+    return AppSettings(
+      halfDayValueCents: valueCents,
+      createdAt: now,
+      updatedAt: now,
+    );
+  }
 }
 
 WorkDay _workDay(String date, {bool before = false, bool after = false}) {

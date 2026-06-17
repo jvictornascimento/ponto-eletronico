@@ -91,7 +91,10 @@ void main() {
 
   testWidgets('opens report from the app bar', (tester) async {
     await tester.pumpWidget(
-      PontoEletronicoApp(workDayRepository: FakeWorkDayRepository()),
+      PontoEletronicoApp(
+        workDayRepository: FakeWorkDayRepository(),
+        settingsRepository: FakeSettingsRepository(),
+      ),
     );
     await tester.pumpAndSettle();
 
