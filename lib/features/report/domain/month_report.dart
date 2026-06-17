@@ -1,10 +1,15 @@
 import 'package:ponto_eletronico/models/work_day.dart';
 
 class MonthReport {
-  const MonthReport({required this.month, required this.workDays});
+  const MonthReport({
+    required this.month,
+    required this.workDays,
+    required this.halfDayValueCents,
+  });
 
   final String month;
   final List<WorkDay> workDays;
+  final int halfDayValueCents;
 
   int get workedDays => workDays.length;
 
@@ -16,4 +21,6 @@ class MonthReport {
       return total + before + after;
     });
   }
+
+  int get totalValueCents => workedPeriods * halfDayValueCents;
 }

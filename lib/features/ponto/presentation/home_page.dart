@@ -146,6 +146,7 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute<void>(
                   builder: (_) => MonthReportPage(
                     workDayRepository: widget.workDayRepository,
+                    settingsRepository: widget.settingsRepository,
                   ),
                 ),
               );

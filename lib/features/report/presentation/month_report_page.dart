@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:ponto_eletronico/data/repositories/settings_repository.dart';
 import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
 import 'package:ponto_eletronico/features/report/domain/month_report.dart';
 import 'package:ponto_eletronico/models/work_day.dart';
+import 'package:ponto_eletronico/shared/money/money_formatter.dart';
 
 class MonthReportPage extends StatefulWidget {
-  const MonthReportPage({super.key, this.workDayRepository});
+  const MonthReportPage({
+    super.key,
+    this.workDayRepository,
+    this.settingsRepository,
+  });
 
   final WorkDayRepository? workDayRepository;
+  final SettingsRepository? settingsRepository;
 
   @override
   State<MonthReportPage> createState() => _MonthReportPageState();
@@ -14,6 +21,7 @@ class MonthReportPage extends StatefulWidget {
 
 class _MonthReportPageState extends State<MonthReportPage> {
   late final WorkDayRepository _workDayRepository;
+  late final SettingsRepository _settingsRepository;
   late final TextEditingController _monthController;
 
   bool _isLoading = false;
@@ -24,6 +32,7 @@ class _MonthReportPageState extends State<MonthReportPage> {
   void initState() {
     super.initState();
     _workDayRepository = widget.workDayRepository ?? WorkDayRepository();
+    _settingsRepository = widget.settingsRepository ?? SettingsRepository();
     _monthController = TextEditingController(text: _currentMonth());
     _loadReport();
   }
@@ -45,6 +54,7 @@ class _MonthReportPageState extends State<MonthReportPage> {
       _message = null;
     });
 
+    final settings = await _settingsRepository.getSettings();
     final workDays = await _workDayRepository.findMarkedByMonth(month);
 
     if (!mounted) {
@@ -53,7 +63,11 @@ class _MonthReportPageState extends State<MonthReportPage> {
 
     setState(() {
       _isLoading = false;
-      _report = MonthReport(month: month, workDays: workDays);
+      _report = MonthReport(
+        month: month,
+        workDays: workDays,
+        halfDayValueCents: settings.halfDayValueCents,
+      );
       _message = workDays.isEmpty ? 'Nenhum ponto marcado nesse mes.' : null;
     });
   }
@@ -136,6 +150,7 @@ class MonthReportView extends StatelessWidget {
         const SizedBox(height: 16),
         Text('Dias trabalhados: ${report.workedDays}'),
         Text('Periodos: ${report.workedPeriods}'),
+        Text('Total: ${MoneyFormatter.formatCents(report.totalValueCents)}'),
       ],
     );
   }
