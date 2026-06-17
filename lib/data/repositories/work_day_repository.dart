@@ -24,6 +24,21 @@ class WorkDayRepository {
     return WorkDay.fromMap(rows.first);
   }
 
+  Future<List<WorkDay>> findMarkedByMonth(String month) async {
+    final database = await _databaseProvider();
+    final rows = await database.query(
+      AppDatabase.workDayTable,
+      where: '''
+        date LIKE ?
+        AND (worked_before_lunch = 1 OR worked_after_lunch = 1)
+      ''',
+      whereArgs: ['$month%'],
+      orderBy: 'date ASC',
+    );
+
+    return rows.map(WorkDay.fromMap).toList();
+  }
+
   Future<WorkDay> save(WorkDay workDay) async {
     final database = await _databaseProvider();
     final now = DateTime.now();
