@@ -22,6 +22,7 @@ Each period is saved as a boolean value. The user can edit only the current day 
 - Tapping a button toggles the value and autosaves it.
 - Old days are read-only.
 - Future days cannot be edited.
+- The edit rule is centralized in `WorkDayEditPolicy`.
 
 ## Configuration
 
