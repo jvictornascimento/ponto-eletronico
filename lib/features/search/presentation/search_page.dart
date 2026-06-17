@@ -131,7 +131,8 @@ class _SearchPageState extends State<SearchPage> {
                 Expanded(
                   child: ListView.separated(
                     itemCount: _results.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 1),
                     itemBuilder: (context, index) {
                       return WorkDayTile(workDay: _results[index]);
                     },

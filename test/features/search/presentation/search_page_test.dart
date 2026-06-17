@@ -20,7 +20,7 @@ void main() {
     await tester.tap(find.text('Buscar data'));
     await tester.pumpAndSettle();
 
-    expect(find.text('2026-06-16'), findsOneWidget);
+    expect(find.widgetWithText(ListTile, '2026-06-16'), findsOneWidget);
     expect(find.text('Antes: Sim | Depois: Nao'), findsOneWidget);
   });
 
