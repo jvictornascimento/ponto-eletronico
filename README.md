@@ -6,7 +6,7 @@ Mini time clock app built with Flutter. The first supported environment is Andro
 
 - Offline local data.
 - Two work periods per day: before lunch and after lunch.
-- Large autosave buttons planned for the home screen.
+- Large autosave buttons on the home screen.
 - Monthly report with only marked days.
 - PDF export planned for sharing reports.
 
