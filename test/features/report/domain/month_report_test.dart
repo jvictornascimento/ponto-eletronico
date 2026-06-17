@@ -6,6 +6,7 @@ void main() {
   test('counts worked days and periods', () {
     final report = MonthReport(
       month: '2026-06',
+      halfDayValueCents: 8000,
       workDays: [
         _workDay('2026-06-16', before: true),
         _workDay('2026-06-17', before: true, after: true),
@@ -14,6 +15,7 @@ void main() {
 
     expect(report.workedDays, 2);
     expect(report.workedPeriods, 3);
+    expect(report.totalValueCents, 24000);
   });
 }
 
