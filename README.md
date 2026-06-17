@@ -9,6 +9,7 @@ Mini time clock app built with Flutter. The first supported environment is Andro
 - Large autosave buttons on the home screen.
 - Editing is allowed only for the current day.
 - Settings screen for the half day value.
+- Search screen by date or month.
 - Monthly report with only marked days.
 - PDF export planned for sharing reports.
 
