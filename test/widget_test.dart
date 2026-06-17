@@ -20,9 +20,7 @@ void main() {
   testWidgets('autosaves when a period is marked', (tester) async {
     final repository = FakeWorkDayRepository();
 
-    await tester.pumpWidget(
-      PontoEletronicoApp(workDayRepository: repository),
-    );
+    await tester.pumpWidget(PontoEletronicoApp(workDayRepository: repository));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Antes do almoco'));

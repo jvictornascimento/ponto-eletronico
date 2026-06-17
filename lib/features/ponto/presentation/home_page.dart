@@ -129,13 +129,12 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                _todayKey,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text(_todayKey, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 24),
               if (_isLoading)
-                const Expanded(child: Center(child: CircularProgressIndicator()))
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
               else if (workDay != null) ...[
                 PeriodButton(
                   label: 'Antes do almoco',
