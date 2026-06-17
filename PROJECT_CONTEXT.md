@@ -75,6 +75,7 @@ Allows editing and saving the half day value in local storage.
 ### Monthly Report
 
 Shows only dates with at least one marked period. Empty days should not appear.
+It also shows the monthly total using the saved half day value.
 
 Clean report example:
 
