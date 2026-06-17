@@ -88,6 +88,19 @@ void main() {
     expect(find.text('Pesquisar pontos'), findsOneWidget);
     expect(find.text('Buscar data'), findsOneWidget);
   });
+
+  testWidgets('opens report from the app bar', (tester) async {
+    await tester.pumpWidget(
+      PontoEletronicoApp(workDayRepository: FakeWorkDayRepository()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.summarize));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Relatorio mensal'), findsOneWidget);
+    expect(find.text('Gerar relatorio'), findsOneWidget);
+  });
 }
 
 class FakeWorkDayRepository extends WorkDayRepository {

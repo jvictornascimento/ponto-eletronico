@@ -1,0 +1,161 @@
+import 'package:flutter/material.dart';
+import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
+import 'package:ponto_eletronico/features/report/domain/month_report.dart';
+import 'package:ponto_eletronico/models/work_day.dart';
+
+class MonthReportPage extends StatefulWidget {
+  const MonthReportPage({super.key, this.workDayRepository});
+
+  final WorkDayRepository? workDayRepository;
+
+  @override
+  State<MonthReportPage> createState() => _MonthReportPageState();
+}
+
+class _MonthReportPageState extends State<MonthReportPage> {
+  late final WorkDayRepository _workDayRepository;
+  late final TextEditingController _monthController;
+
+  bool _isLoading = false;
+  String? _message;
+  MonthReport? _report;
+
+  @override
+  void initState() {
+    super.initState();
+    _workDayRepository = widget.workDayRepository ?? WorkDayRepository();
+    _monthController = TextEditingController(text: _currentMonth());
+    _loadReport();
+  }
+
+  @override
+  void dispose() {
+    _monthController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadReport() async {
+    final month = _monthController.text.trim();
+    if (month.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _message = null;
+    });
+
+    final workDays = await _workDayRepository.findMarkedByMonth(month);
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = false;
+      _report = MonthReport(month: month, workDays: workDays);
+      _message = workDays.isEmpty ? 'Nenhum ponto marcado nesse mes.' : null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final report = _report;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Relatorio mensal')),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: _monthController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Mes',
+                  helperText: 'Formato: 2026-06',
+                ),
+                keyboardType: TextInputType.datetime,
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: _isLoading ? null : _loadReport,
+                child: const Text('Gerar relatorio'),
+              ),
+              const SizedBox(height: 24),
+              if (_isLoading)
+                const Center(child: CircularProgressIndicator())
+              else if (_message != null)
+                Text(_message!, textAlign: TextAlign.center)
+              else if (report != null)
+                Expanded(child: MonthReportView(report: report)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _currentMonth() {
+    final now = DateTime.now();
+    final year = now.year.toString().padLeft(4, '0');
+    final month = now.month.toString().padLeft(2, '0');
+
+    return '$year-$month';
+  }
+}
+
+class MonthReportView extends StatelessWidget {
+  const MonthReportView({super.key, required this.report});
+
+  final MonthReport report;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          report.month,
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 12),
+        Expanded(
+          child: ListView.separated(
+            itemCount: report.workDays.length,
+            separatorBuilder: (context, index) => const Divider(height: 1),
+            itemBuilder: (context, index) {
+              return MonthReportTile(workDay: report.workDays[index]);
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text('Dias trabalhados: ${report.workedDays}'),
+        Text('Periodos: ${report.workedPeriods}'),
+      ],
+    );
+  }
+}
+
+class MonthReportTile extends StatelessWidget {
+  const MonthReportTile({super.key, required this.workDay});
+
+  final WorkDay workDay;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(workDay.date),
+      subtitle: Text(
+        'Antes: ${_yesNo(workDay.workedBeforeLunch)} | Depois: ${_yesNo(workDay.workedAfterLunch)}',
+      ),
+    );
+  }
+
+  String _yesNo(bool value) => value ? 'Sim' : 'Nao';
+}
