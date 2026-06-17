@@ -2,44 +2,50 @@
 
 ## Project Structure & Module Organization
 
-This repository currently contains no application source files, tests, or build manifests. Keep future structure explicit and conventional:
+This repository is a Flutter app named `ponto_eletronico`. The current generated structure is:
 
-- `src/` for production application code.
-- `tests/` or language-standard test folders such as `src/test/` for automated tests.
-- `assets/` or `public/` for static files such as images, styles, and fixtures.
-- `docs/` for design notes, API references, and operational runbooks.
+- `lib/` for Dart application code.
+- `test/` for widget and unit tests.
+- `android/` for the Android host project.
+- `PROJECT_CONTEXT.md` for product rules and story planning.
 
-When adding a framework, commit the package or build manifest (`package.json`, `pom.xml`, `build.gradle`, `Makefile`, etc.) with the initial source layout.
+Future feature code should stay under `lib/` and follow the planned modules: `features/`, `data/`, `models/`, and `shared/`.
 
 ## Build, Test, and Development Commands
 
-No project-specific commands are available yet. Add commands to this section as soon as the project gains a toolchain. Prefer reproducible, single-entry commands, for example:
+Use the Flutter CLI from the repository root:
 
-- `npm install` - install JavaScript dependencies.
-- `npm run dev` - start the local development server.
-- `npm test` - run the automated test suite.
-- `./mvnw test` - run Java tests through the Maven wrapper.
+- `flutter pub get` - install Dart and Flutter dependencies.
+- `flutter analyze` - run static analysis and lints.
+- `flutter test` - run automated tests.
+- `flutter run` - run on a connected Android device or emulator.
+- `flutter build apk --debug` - create a debug APK.
 
-If multiple services are introduced, document required environment variables and startup order.
+Do not add native Android or iOS code unless the feature cannot be built in Dart/Flutter.
 
 ## Coding Style & Naming Conventions
 
-Follow the formatter and linter configured by the chosen stack. Commit configuration files with the first implementation, such as `.editorconfig`, `.prettierrc`, `eslint.config.*`, `checkstyle.xml`, or equivalent.
+Follow `flutter_lints` from `analysis_options.yaml`. Format Dart code before committing:
 
-Use descriptive names that match the language convention: `camelCase` for JavaScript/TypeScript variables, `PascalCase` for React components or Java classes, and `kebab-case` for static asset filenames. Keep modules focused and avoid mixing unrelated responsibilities in one file.
+```bash
+dart format lib test
+```
+
+Use `PascalCase` for widgets/classes, `camelCase` for variables and methods, and `snake_case.dart` for Dart filenames. Keep widgets focused and move reusable UI into `shared/` when it appears in more than one feature.
 
 ## Testing Guidelines
 
-Add tests with each behavioral change. Place tests near the code when the framework encourages it, or under a dedicated `tests/` tree. Use clear names that describe behavior, such as `shouldRecordClockInWhenEmployeeIsActive`.
+Add tests with each behavioral change. Use `flutter_test` for widget tests and plain Dart tests for business rules.
 
-Document the test command and any coverage expectations once a test framework is selected. Include fixtures under `tests/fixtures/` or an equivalent clearly named directory.
+Name tests by behavior, for example `shows the app shell` or `calculates month total with marked periods`. Run `flutter test` before opening a pull request.
 
 ## Commit & Pull Request Guidelines
 
-Git history is not available in this workspace, so no existing commit convention can be inferred. Until one is adopted, use short imperative commit messages, optionally with a scope:
+Use Conventional Commits with a scope and simple English:
 
-- `Add employee time entry model`
-- `Fix overtime calculation`
+- `feat(home): add period buttons`
+- `fix(report): hide empty days`
+- `docs(context): update story plan`
 
 Pull requests should include a concise description, linked issue when applicable, test results, and screenshots for UI changes. Note any schema, configuration, or migration steps clearly.
 

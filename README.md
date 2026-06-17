@@ -1,17 +1,38 @@
-# ponto_eletronico
+# Ponto Eletronico
 
-A new Flutter project.
+Mini time clock app built with Flutter. The first supported environment is Android, while the code should remain portable for future iOS support.
 
-## Getting Started
+## Current Scope
 
-This project is a starting point for a Flutter application.
+- Offline local data.
+- Two work periods per day: before lunch and after lunch.
+- Large autosave buttons planned for the home screen.
+- Monthly report with only marked days.
+- PDF export planned for sharing reports.
 
-A few resources to get you started if this is your first Flutter project:
+## Development
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Install dependencies:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+```
+
+Run checks:
+
+```bash
+flutter analyze
+flutter test
+```
+
+Run on an Android device or emulator:
+
+```bash
+flutter run
+```
+
+Build an Android debug APK:
+
+```bash
+flutter build apk --debug
+```
