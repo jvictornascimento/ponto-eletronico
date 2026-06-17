@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ponto_eletronico/data/repositories/settings_repository.dart';
 import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
+import 'package:ponto_eletronico/features/report/application/month_report_pdf_generator.dart';
+import 'package:ponto_eletronico/features/report/domain/month_report.dart';
 import 'package:ponto_eletronico/features/report/presentation/month_report_page.dart';
 import 'package:ponto_eletronico/models/app_settings.dart';
 import 'package:ponto_eletronico/models/work_day.dart';
@@ -18,6 +22,7 @@ void main() {
             ],
           ),
           settingsRepository: FakeSettingsRepository(valueCents: 8000),
+          pdfGenerator: FakeMonthReportPdfGenerator(),
         ),
       ),
     );
@@ -32,7 +37,42 @@ void main() {
     expect(find.text('Dias trabalhados: 2'), findsOneWidget);
     expect(find.text('Periodos: 3'), findsOneWidget);
     expect(find.text('Total: R\$ 240,00'), findsOneWidget);
+    expect(find.text('Gerar PDF'), findsOneWidget);
   });
+
+  testWidgets('generates PDF from the report screen', (tester) async {
+    final generator = FakeMonthReportPdfGenerator();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MonthReportPage(
+          workDayRepository: FakeWorkDayRepository(
+            monthResults: [_workDay('2026-06-16', before: true)],
+          ),
+          settingsRepository: FakeSettingsRepository(valueCents: 8000),
+          pdfGenerator: generator,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Gerar PDF'));
+    await tester.pumpAndSettle();
+
+    expect(generator.generatedReport?.month, isNotNull);
+    expect(find.text('PDF gerado (4 bytes).'), findsOneWidget);
+  });
+}
+
+class FakeMonthReportPdfGenerator extends MonthReportPdfGenerator {
+  MonthReport? generatedReport;
+
+  @override
+  Future<Uint8List> generate(MonthReport report) async {
+    generatedReport = report;
+
+    return Uint8List.fromList([1, 2, 3, 4]);
+  }
 }
 
 class FakeWorkDayRepository extends WorkDayRepository {
