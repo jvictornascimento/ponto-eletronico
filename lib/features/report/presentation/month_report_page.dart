@@ -173,12 +173,12 @@ class _MonthReportPageState extends State<MonthReportPage> {
                 if (report != null && report.workDays.isNotEmpty)
                   Expanded(
                     child: MonthReportView(
-                    report: report,
-                    isGeneratingPdf: _isGeneratingPdf,
-                    onPreviewPdf: _previewPdf,
-                    onSharePdf: _sharePdf,
+                      report: report,
+                      isGeneratingPdf: _isGeneratingPdf,
+                      onPreviewPdf: _previewPdf,
+                      onSharePdf: _sharePdf,
+                    ),
                   ),
-                ),
               ],
             ],
           ),
