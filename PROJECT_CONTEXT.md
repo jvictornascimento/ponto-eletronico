@@ -33,7 +33,7 @@ Example:
 Half day value: R$ 80,00
 ```
 
-This value is used in the monthly report. If both periods are marked in one day, the day total is two times the half day value.
+This value is used in the monthly report. In code and database records, store it as cents (`half_day_value_cents`) to avoid decimal rounding errors. If both periods are marked in one day, the day total is two times the half day value.
 
 ## Local Data Model
 
@@ -50,7 +50,7 @@ work_day
 
 settings
   id
-  half_day_value
+  half_day_value_cents
   updated_at
 ```
 
