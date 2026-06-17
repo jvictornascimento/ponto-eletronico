@@ -1,0 +1,36 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:ponto_eletronico/features/report/application/month_report_pdf_generator.dart';
+import 'package:ponto_eletronico/features/report/domain/month_report.dart';
+import 'package:ponto_eletronico/models/work_day.dart';
+
+void main() {
+  test('generates PDF bytes for a month report', () async {
+    final generator = MonthReportPdfGenerator();
+    final bytes = await generator.generate(
+      MonthReport(
+        month: '2026-06',
+        halfDayValueCents: 8000,
+        workDays: [
+          _workDay('2026-06-16', before: true),
+          _workDay('2026-06-17', before: true, after: true),
+        ],
+      ),
+    );
+
+    expect(bytes, isNotEmpty);
+    expect(String.fromCharCodes(bytes.take(4)), '%PDF');
+  });
+}
+
+WorkDay _workDay(String date, {bool before = false, bool after = false}) {
+  final now = DateTime(2026, 6, 16);
+
+  return WorkDay(
+    id: 1,
+    date: date,
+    workedBeforeLunch: before,
+    workedAfterLunch: after,
+    createdAt: now,
+    updatedAt: now,
+  );
+}

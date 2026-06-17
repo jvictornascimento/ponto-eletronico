@@ -11,7 +11,7 @@ Mini time clock app built with Flutter. The first supported environment is Andro
 - Settings screen for the half day value.
 - Search screen by date or month.
 - Monthly report with only marked days and money total.
-- PDF export planned for sharing reports.
+- PDF generation for monthly reports.
 
 ## Development
 

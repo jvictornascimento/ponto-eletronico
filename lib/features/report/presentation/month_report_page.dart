@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ponto_eletronico/data/repositories/settings_repository.dart';
 import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
+import 'package:ponto_eletronico/features/report/application/month_report_pdf_generator.dart';
 import 'package:ponto_eletronico/features/report/domain/month_report.dart';
 import 'package:ponto_eletronico/models/work_day.dart';
 import 'package:ponto_eletronico/shared/money/money_formatter.dart';
@@ -10,10 +11,12 @@ class MonthReportPage extends StatefulWidget {
     super.key,
     this.workDayRepository,
     this.settingsRepository,
+    this.pdfGenerator = const MonthReportPdfGenerator(),
   });
 
   final WorkDayRepository? workDayRepository;
   final SettingsRepository? settingsRepository;
+  final MonthReportPdfGenerator pdfGenerator;
 
   @override
   State<MonthReportPage> createState() => _MonthReportPageState();
@@ -25,6 +28,7 @@ class _MonthReportPageState extends State<MonthReportPage> {
   late final TextEditingController _monthController;
 
   bool _isLoading = false;
+  bool _isGeneratingPdf = false;
   String? _message;
   MonthReport? _report;
 
@@ -35,6 +39,29 @@ class _MonthReportPageState extends State<MonthReportPage> {
     _settingsRepository = widget.settingsRepository ?? SettingsRepository();
     _monthController = TextEditingController(text: _currentMonth());
     _loadReport();
+  }
+
+  Future<void> _generatePdf() async {
+    final report = _report;
+    if (report == null || _isGeneratingPdf) {
+      return;
+    }
+
+    setState(() {
+      _isGeneratingPdf = true;
+      _message = null;
+    });
+
+    final bytes = await widget.pdfGenerator.generate(report);
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isGeneratingPdf = false;
+      _message = 'PDF gerado (${bytes.length} bytes).';
+    });
   }
 
   @override
@@ -101,10 +128,20 @@ class _MonthReportPageState extends State<MonthReportPage> {
               const SizedBox(height: 24),
               if (_isLoading)
                 const Center(child: CircularProgressIndicator())
-              else if (_message != null)
-                Text(_message!, textAlign: TextAlign.center)
-              else if (report != null)
-                Expanded(child: MonthReportView(report: report)),
+              else ...[
+                if (_message != null) ...[
+                  Text(_message!, textAlign: TextAlign.center),
+                  const SizedBox(height: 16),
+                ],
+                if (report != null && report.workDays.isNotEmpty)
+                  Expanded(
+                    child: MonthReportView(
+                      report: report,
+                      isGeneratingPdf: _isGeneratingPdf,
+                      onGeneratePdf: _generatePdf,
+                    ),
+                  ),
+              ],
             ],
           ),
         ),
@@ -122,9 +159,16 @@ class _MonthReportPageState extends State<MonthReportPage> {
 }
 
 class MonthReportView extends StatelessWidget {
-  const MonthReportView({super.key, required this.report});
+  const MonthReportView({
+    super.key,
+    required this.report,
+    required this.isGeneratingPdf,
+    required this.onGeneratePdf,
+  });
 
   final MonthReport report;
+  final bool isGeneratingPdf;
+  final VoidCallback onGeneratePdf;
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +195,15 @@ class MonthReportView extends StatelessWidget {
         Text('Dias trabalhados: ${report.workedDays}'),
         Text('Periodos: ${report.workedPeriods}'),
         Text('Total: ${MoneyFormatter.formatCents(report.totalValueCents)}'),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 48,
+          child: FilledButton.icon(
+            onPressed: isGeneratingPdf ? null : onGeneratePdf,
+            icon: const Icon(Icons.picture_as_pdf),
+            label: Text(isGeneratingPdf ? 'Gerando...' : 'Gerar PDF'),
+          ),
+        ),
       ],
     );
   }
