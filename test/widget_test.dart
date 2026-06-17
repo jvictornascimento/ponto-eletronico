@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ponto_eletronico/data/repositories/settings_repository.dart';
 import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
 import 'package:ponto_eletronico/main.dart';
+import 'package:ponto_eletronico/models/app_settings.dart';
 import 'package:ponto_eletronico/models/work_day.dart';
 
 void main() {
@@ -57,6 +59,22 @@ void main() {
     expect(repository.savedWorkDay, isNull);
     expect(find.text('Edicao bloqueada para dias antigos.'), findsOneWidget);
   });
+
+  testWidgets('opens settings from the app bar', (tester) async {
+    await tester.pumpWidget(
+      PontoEletronicoApp(
+        workDayRepository: FakeWorkDayRepository(),
+        settingsRepository: FakeSettingsRepository(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.settings));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Configuracoes'), findsOneWidget);
+    expect(find.text('Valor de meio dia'), findsOneWidget);
+  });
 }
 
 class FakeWorkDayRepository extends WorkDayRepository {
@@ -75,5 +93,17 @@ class FakeWorkDayRepository extends WorkDayRepository {
     currentWorkDay = savedWorkDay;
 
     return savedWorkDay!;
+  }
+}
+
+class FakeSettingsRepository extends SettingsRepository {
+  FakeSettingsRepository()
+    : super(databaseProvider: () => throw StateError('Database not used.'));
+
+  @override
+  Future<AppSettings> getSettings() async {
+    final now = DateTime(2026, 6, 16);
+
+    return AppSettings(halfDayValueCents: 0, createdAt: now, updatedAt: now);
   }
 }

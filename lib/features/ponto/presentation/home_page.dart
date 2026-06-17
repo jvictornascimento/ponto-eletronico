@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:ponto_eletronico/data/repositories/settings_repository.dart';
 import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
 import 'package:ponto_eletronico/features/ponto/domain/work_day_edit_policy.dart';
+import 'package:ponto_eletronico/features/settings/presentation/settings_page.dart';
 import 'package:ponto_eletronico/models/work_day.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, this.workDayRepository, this.nowProvider});
+  const HomePage({
+    super.key,
+    this.workDayRepository,
+    this.settingsRepository,
+    this.nowProvider,
+  });
 
   final WorkDayRepository? workDayRepository;
+  final SettingsRepository? settingsRepository;
   final DateTime Function()? nowProvider;
 
   @override
@@ -126,7 +134,24 @@ class _HomePageState extends State<HomePage> {
     final canEdit = workDay != null && _editPolicy.canEdit(workDay.date);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ponto Eletronico')),
+      appBar: AppBar(
+        title: const Text('Ponto Eletronico'),
+        actions: [
+          IconButton(
+            tooltip: 'Configuracoes',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => SettingsPage(
+                    settingsRepository: widget.settingsRepository,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.settings),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),

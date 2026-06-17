@@ -70,7 +70,7 @@ Allows searching saved work days by date or month. It shows only saved records a
 
 ### Settings
 
-Allows editing and saving the half day value.
+Allows editing and saving the half day value in local storage.
 
 ### Monthly Report
 
