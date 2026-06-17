@@ -7,7 +7,11 @@ void main() {
 }
 
 class PontoEletronicoApp extends StatelessWidget {
-  const PontoEletronicoApp({super.key, this.workDayRepository, this.nowProvider});
+  const PontoEletronicoApp({
+    super.key,
+    this.workDayRepository,
+    this.nowProvider,
+  });
 
   final WorkDayRepository? workDayRepository;
   final DateTime Function()? nowProvider;

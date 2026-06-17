@@ -36,7 +36,8 @@ class _HomePageState extends State<HomePage> {
     try {
       final savedWorkDay = await _workDayRepository.findByDate(_todayKey);
       final workDay =
-          savedWorkDay ?? WorkDay.emptyFor((widget.nowProvider ?? DateTime.now)());
+          savedWorkDay ??
+          WorkDay.emptyFor((widget.nowProvider ?? DateTime.now)());
 
       if (!mounted) {
         return;
