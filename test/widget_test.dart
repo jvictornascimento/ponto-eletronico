@@ -1,11 +1,54 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
 import 'package:ponto_eletronico/main.dart';
+import 'package:ponto_eletronico/models/work_day.dart';
 
 void main() {
-  testWidgets('shows the app shell', (tester) async {
-    await tester.pumpWidget(const PontoEletronicoApp());
+  testWidgets('shows the current day period buttons', (tester) async {
+    await tester.pumpWidget(
+      PontoEletronicoApp(workDayRepository: FakeWorkDayRepository()),
+    );
+    await tester.pumpAndSettle();
 
     expect(find.text('Ponto Eletronico'), findsOneWidget);
-    expect(find.text('Mini ponto offline'), findsOneWidget);
+    expect(find.text('Antes do almoco'), findsOneWidget);
+    expect(find.text('Depois do almoco'), findsOneWidget);
+    expect(find.text('Autosave ativo'), findsOneWidget);
   });
+
+  testWidgets('autosaves when a period is marked', (tester) async {
+    final repository = FakeWorkDayRepository();
+
+    await tester.pumpWidget(
+      PontoEletronicoApp(workDayRepository: repository),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Antes do almoco'));
+    await tester.pumpAndSettle();
+
+    expect(repository.savedWorkDay?.workedBeforeLunch, isTrue);
+    expect(repository.savedWorkDay?.workedAfterLunch, isFalse);
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+  });
+}
+
+class FakeWorkDayRepository extends WorkDayRepository {
+  FakeWorkDayRepository({this.currentWorkDay})
+    : super(databaseProvider: () => throw StateError('Database not used.'));
+
+  WorkDay? currentWorkDay;
+  WorkDay? savedWorkDay;
+
+  @override
+  Future<WorkDay?> findByDate(String date) async => currentWorkDay;
+
+  @override
+  Future<WorkDay> save(WorkDay workDay) async {
+    savedWorkDay = workDay.copyWith(id: 1);
+    currentWorkDay = savedWorkDay;
+
+    return savedWorkDay!;
+  }
 }
