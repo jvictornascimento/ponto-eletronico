@@ -75,6 +75,19 @@ void main() {
     expect(find.text('Configuracoes'), findsOneWidget);
     expect(find.text('Valor de meio dia'), findsOneWidget);
   });
+
+  testWidgets('opens search from the app bar', (tester) async {
+    await tester.pumpWidget(
+      PontoEletronicoApp(workDayRepository: FakeWorkDayRepository()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.search));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pesquisar pontos'), findsOneWidget);
+    expect(find.text('Buscar data'), findsOneWidget);
+  });
 }
 
 class FakeWorkDayRepository extends WorkDayRepository {
@@ -94,6 +107,9 @@ class FakeWorkDayRepository extends WorkDayRepository {
 
     return savedWorkDay!;
   }
+
+  @override
+  Future<List<WorkDay>> findMarkedByMonth(String month) async => [];
 }
 
 class FakeSettingsRepository extends SettingsRepository {

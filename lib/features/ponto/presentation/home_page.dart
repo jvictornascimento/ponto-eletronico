@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ponto_eletronico/data/repositories/settings_repository.dart';
 import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
 import 'package:ponto_eletronico/features/ponto/domain/work_day_edit_policy.dart';
+import 'package:ponto_eletronico/features/search/presentation/search_page.dart';
 import 'package:ponto_eletronico/features/settings/presentation/settings_page.dart';
 import 'package:ponto_eletronico/models/work_day.dart';
 
@@ -137,6 +138,19 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Ponto Eletronico'),
         actions: [
+          IconButton(
+            tooltip: 'Pesquisar',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => SearchPage(
+                    workDayRepository: widget.workDayRepository,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.search),
+          ),
           IconButton(
             tooltip: 'Configuracoes',
             onPressed: () {
