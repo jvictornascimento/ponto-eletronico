@@ -93,7 +93,7 @@ Periods: 3
 Total: R$ 240,00
 ```
 
-PDF is the preferred export format because it is simple to share, print, and keep consistent across Android and iOS.
+PDF is the preferred export format because it is simple to preview, share, print, and keep consistent across Android and iOS.
 
 ## Story Plan
 

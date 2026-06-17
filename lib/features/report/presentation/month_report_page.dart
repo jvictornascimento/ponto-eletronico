@@ -3,8 +3,10 @@ import 'package:ponto_eletronico/data/repositories/settings_repository.dart';
 import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
 import 'package:ponto_eletronico/features/report/application/month_report_pdf_generator.dart';
 import 'package:ponto_eletronico/features/report/domain/month_report.dart';
+import 'package:ponto_eletronico/features/report/presentation/month_report_pdf_preview_page.dart';
 import 'package:ponto_eletronico/models/work_day.dart';
 import 'package:ponto_eletronico/shared/money/money_formatter.dart';
+import 'package:printing/printing.dart';
 
 class MonthReportPage extends StatefulWidget {
   const MonthReportPage({
@@ -41,7 +43,7 @@ class _MonthReportPageState extends State<MonthReportPage> {
     _loadReport();
   }
 
-  Future<void> _generatePdf() async {
+  Future<void> _previewPdf() async {
     final report = _report;
     if (report == null || _isGeneratingPdf) {
       return;
@@ -60,8 +62,43 @@ class _MonthReportPageState extends State<MonthReportPage> {
 
     setState(() {
       _isGeneratingPdf = false;
-      _message = 'PDF gerado (${bytes.length} bytes).';
     });
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => MonthReportPdfPreviewPage(
+          title: 'Relatorio ${report.month}',
+          bytes: bytes,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _sharePdf() async {
+    final report = _report;
+    if (report == null || _isGeneratingPdf) {
+      return;
+    }
+
+    setState(() {
+      _isGeneratingPdf = true;
+      _message = null;
+    });
+
+    final bytes = await widget.pdfGenerator.generate(report);
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isGeneratingPdf = false;
+    });
+
+    await Printing.sharePdf(
+      bytes: bytes,
+      filename: 'relatorio-${report.month}.pdf',
+    );
   }
 
   @override
@@ -138,7 +175,8 @@ class _MonthReportPageState extends State<MonthReportPage> {
                     child: MonthReportView(
                       report: report,
                       isGeneratingPdf: _isGeneratingPdf,
-                      onGeneratePdf: _generatePdf,
+                      onPreviewPdf: _previewPdf,
+                      onSharePdf: _sharePdf,
                     ),
                   ),
               ],
@@ -163,12 +201,14 @@ class MonthReportView extends StatelessWidget {
     super.key,
     required this.report,
     required this.isGeneratingPdf,
-    required this.onGeneratePdf,
+    required this.onPreviewPdf,
+    required this.onSharePdf,
   });
 
   final MonthReport report;
   final bool isGeneratingPdf;
-  final VoidCallback onGeneratePdf;
+  final VoidCallback onPreviewPdf;
+  final VoidCallback onSharePdf;
 
   @override
   Widget build(BuildContext context) {
@@ -199,9 +239,18 @@ class MonthReportView extends StatelessWidget {
         SizedBox(
           height: 48,
           child: FilledButton.icon(
-            onPressed: isGeneratingPdf ? null : onGeneratePdf,
+            onPressed: isGeneratingPdf ? null : onPreviewPdf,
             icon: const Icon(Icons.picture_as_pdf),
-            label: Text(isGeneratingPdf ? 'Gerando...' : 'Gerar PDF'),
+            label: Text(isGeneratingPdf ? 'Gerando...' : 'Visualizar PDF'),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 48,
+          child: OutlinedButton.icon(
+            onPressed: isGeneratingPdf ? null : onSharePdf,
+            icon: const Icon(Icons.share),
+            label: const Text('Compartilhar PDF'),
           ),
         ),
       ],
