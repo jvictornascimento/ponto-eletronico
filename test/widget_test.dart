@@ -30,6 +30,33 @@ void main() {
     expect(repository.savedWorkDay?.workedAfterLunch, isFalse);
     expect(find.byIcon(Icons.check_circle), findsOneWidget);
   });
+
+  testWidgets('does not autosave old days', (tester) async {
+    final repository = FakeWorkDayRepository(
+      currentWorkDay: WorkDay(
+        id: 1,
+        date: '2026-06-15',
+        workedBeforeLunch: false,
+        workedAfterLunch: false,
+        createdAt: DateTime(2026, 6, 15),
+        updatedAt: DateTime(2026, 6, 15),
+      ),
+    );
+
+    await tester.pumpWidget(
+      PontoEletronicoApp(
+        workDayRepository: repository,
+        nowProvider: () => DateTime(2026, 6, 16),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Antes do almoco'));
+    await tester.pumpAndSettle();
+
+    expect(repository.savedWorkDay, isNull);
+    expect(find.text('Edicao bloqueada para dias antigos.'), findsOneWidget);
+  });
 }
 
 class FakeWorkDayRepository extends WorkDayRepository {

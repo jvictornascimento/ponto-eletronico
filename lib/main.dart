@@ -7,9 +7,10 @@ void main() {
 }
 
 class PontoEletronicoApp extends StatelessWidget {
-  const PontoEletronicoApp({super.key, this.workDayRepository});
+  const PontoEletronicoApp({super.key, this.workDayRepository, this.nowProvider});
 
   final WorkDayRepository? workDayRepository;
+  final DateTime Function()? nowProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,10 @@ class PontoEletronicoApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFC62828)),
         useMaterial3: true,
       ),
-      home: HomePage(workDayRepository: workDayRepository),
+      home: HomePage(
+        workDayRepository: workDayRepository,
+        nowProvider: nowProvider,
+      ),
     );
   }
 }

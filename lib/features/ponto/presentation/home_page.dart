@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
+import 'package:ponto_eletronico/features/ponto/domain/work_day_edit_policy.dart';
 import 'package:ponto_eletronico/models/work_day.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, this.workDayRepository});
+  const HomePage({super.key, this.workDayRepository, this.nowProvider});
 
   final WorkDayRepository? workDayRepository;
+  final DateTime Function()? nowProvider;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -13,6 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final WorkDayRepository _workDayRepository;
+  late final WorkDayEditPolicy _editPolicy;
   late final String _todayKey;
 
   WorkDay? _workDay;
@@ -24,14 +27,16 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _workDayRepository = widget.workDayRepository ?? WorkDayRepository();
-    _todayKey = WorkDay.dateKey(DateTime.now());
+    _editPolicy = WorkDayEditPolicy(nowProvider: widget.nowProvider);
+    _todayKey = WorkDay.dateKey((widget.nowProvider ?? DateTime.now)());
     _loadToday();
   }
 
   Future<void> _loadToday() async {
     try {
       final savedWorkDay = await _workDayRepository.findByDate(_todayKey);
-      final workDay = savedWorkDay ?? WorkDay.emptyFor(DateTime.now());
+      final workDay =
+          savedWorkDay ?? WorkDay.emptyFor((widget.nowProvider ?? DateTime.now)());
 
       if (!mounted) {
         return;
@@ -56,7 +61,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _toggleBeforeLunch() async {
     final currentWorkDay = _workDay;
-    if (currentWorkDay == null || _isSaving) {
+    if (currentWorkDay == null ||
+        _isSaving ||
+        !_editPolicy.canEdit(currentWorkDay.date)) {
       return;
     }
 
@@ -69,7 +76,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _toggleAfterLunch() async {
     final currentWorkDay = _workDay;
-    if (currentWorkDay == null || _isSaving) {
+    if (currentWorkDay == null ||
+        _isSaving ||
+        !_editPolicy.canEdit(currentWorkDay.date)) {
       return;
     }
 
@@ -113,6 +122,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final workDay = _workDay;
+    final canEdit = workDay != null && _editPolicy.canEdit(workDay.date);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Ponto Eletronico')),
@@ -140,6 +150,7 @@ class _HomePageState extends State<HomePage> {
                   label: 'Antes do almoco',
                   isMarked: workDay.workedBeforeLunch,
                   isSaving: _isSaving,
+                  canEdit: canEdit,
                   onPressed: _toggleBeforeLunch,
                 ),
                 const SizedBox(height: 16),
@@ -147,11 +158,12 @@ class _HomePageState extends State<HomePage> {
                   label: 'Depois do almoco',
                   isMarked: workDay.workedAfterLunch,
                   isSaving: _isSaving,
+                  canEdit: canEdit,
                   onPressed: _toggleAfterLunch,
                 ),
                 const Spacer(),
                 Text(
-                  _isSaving ? 'Salvando automaticamente...' : 'Autosave ativo',
+                  _footerText(canEdit),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
@@ -170,6 +182,18 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  String _footerText(bool canEdit) {
+    if (_isSaving) {
+      return 'Salvando automaticamente...';
+    }
+
+    if (!canEdit) {
+      return 'Edicao bloqueada para dias antigos.';
+    }
+
+    return 'Autosave ativo';
+  }
 }
 
 class PeriodButton extends StatelessWidget {
@@ -178,12 +202,14 @@ class PeriodButton extends StatelessWidget {
     required this.label,
     required this.isMarked,
     required this.isSaving,
+    required this.canEdit,
     required this.onPressed,
   });
 
   final String label;
   final bool isMarked;
   final bool isSaving;
+  final bool canEdit;
   final VoidCallback onPressed;
 
   @override
@@ -196,7 +222,7 @@ class PeriodButton extends StatelessWidget {
     return SizedBox(
       height: 144,
       child: ElevatedButton(
-        onPressed: isSaving ? null : onPressed,
+        onPressed: isSaving || !canEdit ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
