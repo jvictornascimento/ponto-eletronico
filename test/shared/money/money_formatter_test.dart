@@ -8,6 +8,11 @@ void main() {
       expect(MoneyFormatter.formatCents(8050), 'R\$ 80,50');
     });
 
+    test('formats cents for text input', () {
+      expect(MoneyFormatter.formatInputCents(8000), '80,00');
+      expect(MoneyFormatter.formatInputCents(8050), '80,50');
+    });
+
     test('parses typed currency text to cents', () {
       expect(MoneyFormatter.parseToCents('R\$ 80,00'), 8000);
       expect(MoneyFormatter.parseToCents('80,50'), 8050);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ponto_eletronico/data/repositories/settings_repository.dart';
 import 'package:ponto_eletronico/data/repositories/work_day_repository.dart';
 import 'package:ponto_eletronico/features/ponto/presentation/home_page.dart';
 
@@ -10,10 +11,12 @@ class PontoEletronicoApp extends StatelessWidget {
   const PontoEletronicoApp({
     super.key,
     this.workDayRepository,
+    this.settingsRepository,
     this.nowProvider,
   });
 
   final WorkDayRepository? workDayRepository;
+  final SettingsRepository? settingsRepository;
   final DateTime Function()? nowProvider;
 
   @override
@@ -26,6 +29,7 @@ class PontoEletronicoApp extends StatelessWidget {
       ),
       home: HomePage(
         workDayRepository: workDayRepository,
+        settingsRepository: settingsRepository,
         nowProvider: nowProvider,
       ),
     );
